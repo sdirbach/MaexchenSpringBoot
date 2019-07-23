@@ -8,18 +8,31 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import at.rvs.maexchen.model.Diceroll;
+import at.rvs.maexchen.model.PlayerNotRespondingException;
 import at.rvs.maexchen.model.SeeOrRoll;
 import at.rvs.maexchen.model.Team;
 
 @Service
 public class PlayerClientService {
-	
+
 	@Autowired
 	private transient Logger logger;
+
+	public void notifyAllPlayers(List<Team> teams, Diceroll playersDiceRoll) {
+		for (Team currentTeam : teams) {
+			notify(currentTeam, ServiceUrl.CURRENT_DICE_ROLL, playersDiceRoll.getDices());
+		}
+	}
+
+	public void notifyAllPlayerRoundEnded(List<Team> teams) {
+		for (Team currentTeam : teams) {
+			notify(currentTeam, ServiceUrl.ROUND_ENDED, "ROUND_ENDED");
+		}
+
+	}
 
 	public Diceroll notifyPlayer(Team team, Diceroll diceroll) {
 		try {
@@ -32,40 +45,39 @@ public class PlayerClientService {
 
 			String body = postForEntity.getBody();
 			return new Diceroll(body);
-		} catch (HttpClientErrorException httpException) {
-			throw new IllegalArgumentException("");
-		}
-	}
-
-	public void notifyAllPlayers(List<Team> teams, Diceroll playersDiceRoll) {
-		RestTemplate restTemplate = new RestTemplate();
-
-		for (Team currentTeam : teams) {
-			restTemplate.postForLocation(currentTeam.getUrl() + ServiceUrl.CURRENT_DICE_ROLL, playersDiceRoll.getDices());
-		}
-	}
-
-	public void notifyAllPlayerRoundEnded(List<Team> teams) {
-		RestTemplate restTemplate = new RestTemplate();
-
-		for (Team currentTeam : teams) {
-			restTemplate.postForLocation(currentTeam.getUrl() + ServiceUrl.ROUND_ENDED, "ROUND_ENDED");
+		} catch (Exception httpException) {
+			throw new PlayerNotRespondingException(team);
 		}
 	}
 
 	public SeeOrRoll notifyPlayerSeeOrRoll(Team currentPlayer) {
+		try {
+			RestTemplate restTemplate = new RestTemplate();
+
+			logger.info("notifyPlayerSeeOrRoll: " + currentPlayer.getName() + " url: " + currentPlayer.getUrl() + ServiceUrl.SEE_OR_ROLL + " See or Roll?");
+
+			HttpEntity<String> request = new HttpEntity<String>("SEE OR ROLL", new HttpHeaders());
+			ResponseEntity<String> postForEntity = restTemplate.postForEntity(currentPlayer.getUrl() + ServiceUrl.SEE_OR_ROLL, request, String.class);
+
+			String body = postForEntity.getBody();
+
+			logger.info(currentPlayer.getName() + " wants to " + body);
+			return SeeOrRoll.getByName(body);
+		} catch (Exception httpException) {
+			throw new PlayerNotRespondingException(currentPlayer);
+		}
+
+	}
+
+	private void notify(Team team, String url, String message) {
 		RestTemplate restTemplate = new RestTemplate();
 
-		logger.info("notifyPlayerSeeOrRoll: " + currentPlayer.getName() + " url: " + currentPlayer.getUrl() + ServiceUrl.SEE_OR_ROLL + " See or Roll?");
-
-		HttpEntity<String> request = new HttpEntity<String>("SEE OR ROLL", new HttpHeaders());
-		ResponseEntity<String> postForEntity = restTemplate.postForEntity(currentPlayer.getUrl() + ServiceUrl.SEE_OR_ROLL, request, String.class);
-
-		String body = postForEntity.getBody();
-
-		logger.info(currentPlayer.getName() + " wants to " + body);
-
-		return SeeOrRoll.getByName(body);
+		try {
+			logger.info("Notify Player:" + team.getName() + " " + message);
+			restTemplate.postForLocation(team.getUrl() + url, message);
+		} catch (Exception httpException) {
+			logger.warn("Unable to Notify Player!");
+		}
 	}
 
 }

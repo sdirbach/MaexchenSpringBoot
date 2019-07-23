@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import at.rvs.maexchen.model.Diceroll;
+import at.rvs.maexchen.model.PlayerNotRespondingException;
 import at.rvs.maexchen.model.SeeOrRoll;
 import at.rvs.maexchen.model.Team;
 
@@ -42,42 +43,56 @@ public class MaexchenService {
 	}
 
 	public boolean runGameRound() {
+		if (noTeamLeft()) {
+			logger.warn("Game end without winner!");
+			return false;
+		}
+
 		if (lastTeamStanding()) {
 			logger.info("We have a Winner: " + teams.get(FIRST).getName());
 			return false;
 		}
 
-		if (lastPlayerRealDiceRoll != null && Diceroll.MAEXCHEN.equals(lastPlayerRealDiceRoll.getDices())) {
-			shameOnAllPlayersExcept(previousTeam);
-			notifiyAllPlayersRoundEnded();
-		}
+		try {
+			if (lastPlayerRealDiceRoll != null && Diceroll.MAEXCHEN.equals(lastPlayerRealDiceRoll.getDices())) {
+				shameOnAllPlayersExcept(previousTeam);
+				notifiyAllPlayersRoundEndedAndResetDices();
+			}
 
-		if (!firstPlayer()) {
-			SeeOrRoll decision = playerClient.notifyPlayerSeeOrRoll(currentTeam);
+			if (!firstPlayer()) {
+				playTurn();
+			}
 
-			if (SeeOrRoll.ROLL.equals(decision)) {
+			if (firstPlayer()) {
 				rollTheDicesTellEveryoneAndSetNextTeam();
 			}
-
-			if (SeeOrRoll.SEE.equals(decision)) {
-				if (previousPlayerLied()) {
-					shameOnPlayer(previousTeam);
-				} else {
-					shameOnPlayer(currentTeam);
-				}
-				notifiyAllPlayersRoundEnded();
+			return true;
+		} catch (PlayerNotRespondingException exception) {
+			logger.warn("Player " + exception.getTeam().getName() + " did not respond!");
+			shameOnPlayer(exception.getTeam());
+			notifiyAllPlayersRoundEndedAndResetDices();
+			if (exception.getTeam().getPoints() <= 0) {
+				setNextTeam();
 			}
+			return true;
 		}
+	}
 
-		if (firstPlayer()) {
+	private void playTurn() {
+		SeeOrRoll decision = playerClient.notifyPlayerSeeOrRoll(currentTeam);
+
+		if (SeeOrRoll.ROLL.equals(decision)) {
 			rollTheDicesTellEveryoneAndSetNextTeam();
 		}
 
-		return true;
-	}
-
-	private boolean lastTeamStanding() {
-		return teams.size() == 1;
+		if (SeeOrRoll.SEE.equals(decision)) {
+			if (previousPlayerLied()) {
+				shameOnPlayer(previousTeam);
+			} else {
+				shameOnPlayer(currentTeam);
+			}
+			notifiyAllPlayersRoundEndedAndResetDices();
+		}
 	}
 
 	private void rollTheDicesTellEveryoneAndSetNextTeam() {
@@ -88,9 +103,7 @@ public class MaexchenService {
 			logger.info("Last Player Roll was " + lastPlayerDiceRollTold + " was highter than" + currentPlayerDicerolltold);
 
 			shameOnPlayer(currentTeam);
-			notifiyAllPlayersRoundEnded();
-			lastPlayerDiceRollTold = null;
-			lastPlayerRealDiceRoll = null;
+			notifiyAllPlayersRoundEndedAndResetDices();
 			return;
 		}
 
@@ -125,9 +138,11 @@ public class MaexchenService {
 		return lastPlayerDiceRollTold.isHigherOrEqualThan(lastPlayerRealDiceRoll);
 	}
 
-	private void notifiyAllPlayersRoundEnded() {
+	private void notifiyAllPlayersRoundEndedAndResetDices() {
 		playerClient.notifyAllPlayerRoundEnded(teams);
 		previousTeam = null;
+		lastPlayerDiceRollTold = null;
+		lastPlayerRealDiceRoll = null;
 		logger.info("Round Ended!");
 	}
 
@@ -143,6 +158,14 @@ public class MaexchenService {
 		}
 		previousTeam = currentTeam;
 		currentTeam = teams.get(index);
+	}
+
+	private boolean lastTeamStanding() {
+		return teams.size() == 1;
+	}
+
+	private boolean noTeamLeft() {
+		return teams.isEmpty();
 	}
 
 	public List<Team> determineTeams() {

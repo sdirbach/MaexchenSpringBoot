@@ -32,10 +32,10 @@ public class MaexchenSpielerRestService {
 		return dice;
 	}
 
-	@PostMapping(ServiceUrl.SEE_OR_ROLL)
-	public String seeOrRoll(@RequestBody String seeOrRoll) {
+//	@PostMapping(ServiceUrl.SEE_OR_ROLL)
+//	public String seeOrRoll(@RequestBody String seeOrRoll) {
 //		logger.info(seeOrRoll);
-		return "ROLL";
-	}
+//		return "ROLL";
+//	}
 
 }
