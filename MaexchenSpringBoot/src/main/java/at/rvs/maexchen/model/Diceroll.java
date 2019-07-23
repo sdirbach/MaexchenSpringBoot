@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.springframework.stereotype.Service;
-
 public class Diceroll {
 
 	public static final String MAEXCHEN = "21";

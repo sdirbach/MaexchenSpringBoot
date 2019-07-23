@@ -1,0 +1,49 @@
+<pluginManagement>
+	<plugins>
+		<plugin>
+			<groupId>org.bsc.maven</groupId>
+			<artifactId>maven-processor-plugin</artifactId>
+			<version>2.2.4</version>
+			<configuration>
+				<defaultOutputDirectory>${project.build.directory}/generated-sources/mapper
+				</defaultOutputDirectory>
+				<processors>
+					<processor>org.mapstruct.ap.MappingProcessor</processor>
+				</processors>
+				<options>
+					<mapstruct.suppressGeneratorTimestamp>true</mapstruct.suppressGeneratorTimestamp>
+					<mapstruct.defaultComponentModel>spring</mapstruct.defaultComponentModel>
+					<mapstruct.unmappedTargetPolicy>IGNORE</mapstruct.unmappedTargetPolicy>
+				</options>
+			</configuration>
+			<executions>
+				<execution>
+					<id>process</id>
+					<phase>generate-sources</phase>
+					<goals>
+						<goal>process</goal>
+					</goals>
+				</execution>
+			</executions>
+			<dependencies>
+				<dependency>
+					<groupId>org.mapstruct</groupId>
+					<artifactId>mapstruct-processor</artifactId>
+					<version>${org.mapstruct.version}</version>
+				</dependency>
+			</dependencies>
+		</plugin>
+
+		<plugin>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-maven-plugin</artifactId>
+		</plugin>
+	</plugins>
+	
+	
+	
+				<plugin>
+				<groupId>org.bsc.maven</groupId>
+				<artifactId>maven-processor-plugin</artifactId>
+			</plugin>
+</pluginManagement>

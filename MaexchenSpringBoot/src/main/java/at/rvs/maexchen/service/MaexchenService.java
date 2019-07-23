@@ -1,6 +1,7 @@
 package at.rvs.maexchen.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 import at.rvs.maexchen.model.Diceroll;
 import at.rvs.maexchen.model.SeeOrRoll;
 import at.rvs.maexchen.model.Team;
-import edu.emory.mathcs.backport.java.util.Collections;
 
 @Service
 public class MaexchenService {
@@ -115,6 +115,10 @@ public class MaexchenService {
 		}
 		previousTeam = currentTeam;
 		currentTeam = teams.get(index);
+	}
+
+	public List<Team> determineTeams() {
+		return teams;
 	}
 
 }
