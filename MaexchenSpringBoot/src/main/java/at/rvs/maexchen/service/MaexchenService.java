@@ -65,7 +65,7 @@ public class MaexchenService {
 	private void rollTheDicesTellEveryoneAndSetNextTeam() {
 		lastPlayerRealDiceRoll = new Diceroll();
 		Diceroll currentDicerolltold = playerClient.notifyPlayer(currentTeam, lastPlayerRealDiceRoll);
-		if (lastPlayerDiceRollTold.isHigherOrEqualThan(currentDicerolltold)) {
+		if (lastPlayerDiceRollTold != null && lastPlayerDiceRollTold.isHigherOrEqualThan(currentDicerolltold)) {
 			shameOnPlayer(currentTeam);
 			notifiyAllPlayersRoundEnded();
 			return;

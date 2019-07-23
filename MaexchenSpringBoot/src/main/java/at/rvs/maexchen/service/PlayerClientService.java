@@ -6,6 +6,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import at.rvs.maexchen.model.Diceroll;
@@ -16,14 +17,20 @@ import at.rvs.maexchen.model.Team;
 public class PlayerClientService {
 
 	public Diceroll notifyPlayer(Team team, Diceroll diceroll) {
-		RestTemplate restTemplate = new RestTemplate();
+		try {
+			RestTemplate restTemplate = new RestTemplate();
 
-		HttpEntity<String> request = new HttpEntity<String>(diceroll.getDices(), new HttpHeaders());
-		ResponseEntity<String> postForEntity = restTemplate.postForEntity(team.getUrl() + ServiceUrl.DICE_ROLL, request,
-				String.class);
+			System.out.println("notifyPlayer" + team.getUrl() + ServiceUrl.DICE_ROLL);
 
-		String body = postForEntity.getBody();
-		return new Diceroll(body);
+			HttpEntity<String> request = new HttpEntity<String>(diceroll.getDices(), new HttpHeaders());
+			ResponseEntity<String> postForEntity = restTemplate.postForEntity(team.getUrl() + ServiceUrl.DICE_ROLL,
+					request, String.class);
+
+			String body = postForEntity.getBody();
+			return new Diceroll(body);
+		} catch (HttpClientErrorException httpException) {
+			throw new IllegalArgumentException("");
+		}
 	}
 
 	public void notifyAllPlayers(List<Team> teams, Diceroll playersDiceRoll) {
