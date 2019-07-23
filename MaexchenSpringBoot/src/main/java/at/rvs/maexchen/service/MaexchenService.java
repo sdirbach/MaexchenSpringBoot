@@ -72,7 +72,7 @@ public class MaexchenService {
 			shameOnPlayer(exception.getTeam());
 			notifiyAllPlayersRoundEndedAndResetDices();
 			if (exception.getTeam().getPoints() <= 0) {
-				setNextTeam();
+				determineNextTeam();
 			}
 			return true;
 		}
@@ -89,10 +89,16 @@ public class MaexchenService {
 			if (previousPlayerToldTruth()) {
 				shameOnPlayer(currentTeam);
 			} else {
-				shameOnPlayer(previousTeam);
+				if (previousTeamIsNotExtinguished()) {
+					shameOnPlayer(previousTeam);	
+				}
 			}
 			notifiyAllPlayersRoundEndedAndResetDices();
 		}
+	}
+
+	private boolean previousTeamIsNotExtinguished() {
+		return previousTeam != null;
 	}
 
 	private void rollTheDicesTellEveryoneAndSetNextTeam() {
@@ -134,19 +140,15 @@ public class MaexchenService {
 
 	}
 
-	private boolean previousPlayerLied() {
-		return lastPlayerDiceRollTold.isHigherOrEqualThan(lastPlayerRealDiceRoll);
-	}
-
 	private boolean previousPlayerToldTruth() {
 		return lastPlayerRealDiceRoll.isHigherOrEqualThan(lastPlayerDiceRollTold);
 	}
 
 	private void notifiyAllPlayersRoundEndedAndResetDices() {
-		playerClient.notifyAllPlayerRoundEnded(teams);
 		previousTeam = null;
 		lastPlayerDiceRollTold = null;
 		lastPlayerRealDiceRoll = null;
+		playerClient.notifyAllPlayerRoundEnded(teams);
 		logger.info("Round Ended!");
 	}
 
@@ -161,6 +163,15 @@ public class MaexchenService {
 			index = 0;
 		}
 		previousTeam = currentTeam;
+		currentTeam = teams.get(index);
+	}
+	
+	private void determineNextTeam() {
+		index++;
+
+		if (index > teams.size() - 1) {
+			index = 0;
+		}
 		currentTeam = teams.get(index);
 	}
 

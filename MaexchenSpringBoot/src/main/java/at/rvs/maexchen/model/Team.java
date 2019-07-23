@@ -37,7 +37,7 @@ public class Team implements Serializable {
 	}
 
 	public int decreaseAndGetPoints() {
-		return this.points--;
+		return --this.points;
 	}
 
 }
