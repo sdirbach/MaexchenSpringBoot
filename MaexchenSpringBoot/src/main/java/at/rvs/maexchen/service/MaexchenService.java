@@ -112,9 +112,9 @@ public class MaexchenService {
 	private void shameOnPlayer(Team player) {
 		if (player.decreaseAndGetPoints() <= 0) {
 			teams.remove(player);
-			logger.info("Removed player " + player.getName());
+			logger.info("Player " + player.getName() + " decreased to 0. Player Removed!");
 		} else {
-			logger.info(player.getName() + " decreased by 1 to " + player.getPoints());
+			logger.info("Player " + player.getName() + " decreased by 1 to " + player.getPoints());
 		}
 
 	}

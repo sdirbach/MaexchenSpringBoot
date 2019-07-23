@@ -2,6 +2,8 @@ package at.rvs.maexchen.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +17,15 @@ import at.rvs.maexchen.model.Team;
 
 @Service
 public class PlayerClientService {
+	
+	@Autowired
+	private transient Logger logger;
 
 	public Diceroll notifyPlayer(Team team, Diceroll diceroll) {
 		try {
 			RestTemplate restTemplate = new RestTemplate();
 
-			System.out.println("notifyPlayer: " + team.getName() + " url: " + team.getUrl() + ServiceUrl.DICE_ROLL + " there roll" + diceroll.getDices());
+			logger.info("notifyPlayer: " + team.getName() + " url: " + team.getUrl() + ServiceUrl.DICE_ROLL + " there roll" + diceroll.getDices());
 
 			HttpEntity<String> request = new HttpEntity<String>(diceroll.getDices(), new HttpHeaders());
 			ResponseEntity<String> postForEntity = restTemplate.postForEntity(team.getUrl() + ServiceUrl.DICE_ROLL, request, String.class);
@@ -51,14 +56,14 @@ public class PlayerClientService {
 	public SeeOrRoll notifyPlayerSeeOrRoll(Team currentPlayer) {
 		RestTemplate restTemplate = new RestTemplate();
 
-		System.out.println("notifyPlayerSeeOrRoll: " + currentPlayer.getName() + " url: " + currentPlayer.getUrl() + ServiceUrl.SEE_OR_ROLL + " See or Roll?");
+		logger.info("notifyPlayerSeeOrRoll: " + currentPlayer.getName() + " url: " + currentPlayer.getUrl() + ServiceUrl.SEE_OR_ROLL + " See or Roll?");
 
 		HttpEntity<String> request = new HttpEntity<String>("SEE OR ROLL", new HttpHeaders());
 		ResponseEntity<String> postForEntity = restTemplate.postForEntity(currentPlayer.getUrl() + ServiceUrl.SEE_OR_ROLL, request, String.class);
 
 		String body = postForEntity.getBody();
 
-		System.out.println(currentPlayer.getName() + " wants to " + body);
+		logger.info(currentPlayer.getName() + " wants to " + body);
 
 		return SeeOrRoll.getByName(body);
 	}

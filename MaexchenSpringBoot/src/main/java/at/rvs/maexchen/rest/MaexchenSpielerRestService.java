@@ -16,25 +16,25 @@ public class MaexchenSpielerRestService {
 
 	@PostMapping(ServiceUrl.DICE_ROLL)
 	public String diceRoll(@RequestBody String dice) {
-		logger.info("DICE_ROLL:" + dice);
+//		logger.info("DICE_ROLL:" + dice);
 		return dice;
 	}
 
 	@PostMapping(ServiceUrl.ROUND_ENDED)
 	public String roundEnded(@RequestBody String roundEnded) {
-		logger.info(roundEnded);
+//		logger.info(roundEnded);
 		return roundEnded;
 	}
 
 	@PostMapping(ServiceUrl.CURRENT_DICE_ROLL)
 	public String currentRoll(@RequestBody String dice) {
-		logger.info(dice);
+//		logger.info(dice);
 		return dice;
 	}
 
 	@PostMapping(ServiceUrl.SEE_OR_ROLL)
 	public String seeOrRoll(@RequestBody String seeOrRoll) {
-		logger.info(seeOrRoll);
+//		logger.info(seeOrRoll);
 		return "ROLL";
 	}
 
