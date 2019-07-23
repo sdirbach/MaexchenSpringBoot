@@ -25,7 +25,7 @@ public class PlayerClientService {
 		try {
 			RestTemplate restTemplate = new RestTemplate();
 
-			logger.info("notifyPlayer: " + team.getName() + " url: " + team.getUrl() + ServiceUrl.DICE_ROLL + " there roll" + diceroll.getDices());
+			logger.info("notifyPlayer: " + team.getName() + " url: " + team.getUrl() + ServiceUrl.DICE_ROLL + " rolled:" + diceroll.getDices());
 
 			HttpEntity<String> request = new HttpEntity<String>(diceroll.getDices(), new HttpHeaders());
 			ResponseEntity<String> postForEntity = restTemplate.postForEntity(team.getUrl() + ServiceUrl.DICE_ROLL, request, String.class);

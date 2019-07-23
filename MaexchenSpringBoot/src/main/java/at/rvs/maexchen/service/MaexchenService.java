@@ -43,7 +43,7 @@ public class MaexchenService {
 
 	public boolean runGameRound() {
 		if (lastTeamStanding()) {
-			logger.info("We have a Winner" + teams.get(FIRST).getName());
+			logger.info("We have a Winner: " + teams.get(FIRST).getName());
 			return false;
 		}
 
@@ -102,7 +102,9 @@ public class MaexchenService {
 	}
 
 	private void shameOnAllPlayersExcept(Team winner) {
-		for (Team team : teams) {
+		List<Team> tempTeams = new ArrayList<Team>(teams);
+
+		for (Team team : tempTeams) {
 			if (!team.equals(winner)) {
 				shameOnPlayer(team);
 			}

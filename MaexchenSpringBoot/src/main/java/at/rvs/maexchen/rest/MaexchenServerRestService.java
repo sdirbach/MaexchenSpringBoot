@@ -30,7 +30,7 @@ public class MaexchenServerRestService {
 	@PostMapping("/join")
 	public Team joinGame(@RequestBody Team team) {
 		if (!gameRunning) {
-			System.out.println("Team " + team.getName() + " joined game.");
+			logger.info("Team " + team.getName() + " joined game.");
 			team.setPoints(5);
 			maexchenService.addTeamToGame(team);
 			return team;
@@ -43,6 +43,7 @@ public class MaexchenServerRestService {
 	public Boolean startGame(@PathVariable boolean started) {
 		gameRunning = started;
 		maexchenService.shuffleTeams();
+		maexchenService.determineTeams().stream().forEach(t -> logger.info(t.getName()));
 		return started;
 	}
 
@@ -51,7 +52,7 @@ public class MaexchenServerRestService {
 		return maexchenService.determineTeams();
 	}
 
-	@Scheduled(fixedDelay = 1000)
+	@Scheduled(fixedDelay = 100)
 	public void runGameRound() {
 		if (gameRunning) {
 			logger.info("Round" + round++);
