@@ -14,7 +14,7 @@ import at.rvs.maexchen.model.Team;
 import at.rvs.maexchen.service.MaexchenService;
 
 @RestController
-public class MaexchenRestService {
+public class MaexchenServerRestService {
 
 	@Autowired
 	private MaexchenService maexchenService;
@@ -25,8 +25,13 @@ public class MaexchenRestService {
 
 	@PostMapping("/join")
 	public Team joinGame(@RequestBody Team team) {
-		maexchenService.addTeamToGame(team);
-		return team;
+		if (!gameStarted) {
+			team.setPoints(5);
+			maexchenService.addTeamToGame(team);
+			return team;
+		} else {
+			throw new IllegalArgumentException("to late to join");
+		}
 	}
 
 	@GetMapping("/startGame/{started}")
@@ -43,6 +48,7 @@ public class MaexchenRestService {
 
 	@Scheduled(fixedDelay = 1000)
 	public void runGameRound() {
+		System.out.println("skedulte round");
 		if (gameStarted) {
 			System.out.println("Round" + round++);
 			maexchenService.runGameRound();

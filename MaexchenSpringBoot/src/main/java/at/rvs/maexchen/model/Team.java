@@ -31,6 +31,10 @@ public class Team implements Serializable {
 	public int getPoints() {
 		return points;
 	}
+	
+	public void setPoints(int points) {
+		this.points = points;
+	}
 
 	public int decreaseAndGetPoints() {
 		return this.points--;

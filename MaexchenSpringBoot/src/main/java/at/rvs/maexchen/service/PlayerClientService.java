@@ -30,7 +30,7 @@ public class PlayerClientService {
 		RestTemplate restTemplate = new RestTemplate();
 
 		for (Team currentTeam : teams) {
-			restTemplate.postForLocation(currentTeam.getUrl() + ServiceUrl.CURRENT_DICE_ROLL.getUrl(),
+			restTemplate.postForLocation(currentTeam.getUrl() + ServiceUrl.CURRENT_DICE_ROLL,
 					playersDiceRoll.getDices());
 		}
 	}
@@ -39,7 +39,7 @@ public class PlayerClientService {
 		RestTemplate restTemplate = new RestTemplate();
 
 		for (Team currentTeam : teams) {
-			restTemplate.postForLocation(currentTeam.getUrl() + ServiceUrl.ROUND_ENDED.getUrl(), "ROUND_ENDED");
+			restTemplate.postForLocation(currentTeam.getUrl() + ServiceUrl.ROUND_ENDED, "ROUND_ENDED");
 		}
 	}
 
@@ -47,8 +47,8 @@ public class PlayerClientService {
 		RestTemplate restTemplate = new RestTemplate();
 
 		HttpEntity<String> request = new HttpEntity<String>("SEE OR ROLL", new HttpHeaders());
-		ResponseEntity<String> postForEntity = restTemplate.postForEntity(currentPlayer.getUrl() + ServiceUrl.DICE_ROLL,
-				request, String.class);
+		ResponseEntity<String> postForEntity = restTemplate
+				.postForEntity(currentPlayer.getUrl() + ServiceUrl.SEE_OR_ROLL, request, String.class);
 
 		String body = postForEntity.getBody();
 		return SeeOrRoll.getByName(body);

@@ -39,7 +39,7 @@ public class MaexchenService {
 	}
 
 	public void runGameRound() {
-		if (Diceroll.MAEXCHEN.equals(lastPlayerRealDiceRoll.getDices())) {
+		if (lastPlayerRealDiceRoll != null && Diceroll.MAEXCHEN.equals(lastPlayerRealDiceRoll.getDices())) {
 			shameOnAllPlayersExcept(previousTeam);
 			notifiyAllPlayersRoundEnded();
 		}
