@@ -2,6 +2,8 @@ package at.rvs.maexchen.model;
 
 import java.io.Serializable;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class Team implements Serializable {
 
 	private String name;
@@ -12,6 +14,7 @@ public class Team implements Serializable {
 		this.points = 5;
 	}
 
+	@ApiModelProperty(example = "Hier könnte Ihr Team Name stehen.", required = true)
 	public String getName() {
 		return name;
 	}
@@ -20,6 +23,7 @@ public class Team implements Serializable {
 		this.name = name;
 	}
 
+	@ApiModelProperty(example = "Hier könnte Ihre Url stehen.", required = true)
 	public String getUrl() {
 		return url;
 	}
@@ -31,7 +35,8 @@ public class Team implements Serializable {
 	public int getPoints() {
 		return points;
 	}
-	
+
+	@ApiModelProperty(hidden = true)
 	public void setPoints(int points) {
 		this.points = points;
 	}

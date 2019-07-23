@@ -74,7 +74,7 @@ public class MaexchenServerRestService {
 		return maexchenService.determineTeams();
 	}
 
-	@Scheduled(fixedDelay = 100)
+	@Scheduled(fixedDelay = 1)
 	public void runGameRound() {
 		if (gameRunning) {
 			logger.info("Round" + round++);
