@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import at.rvs.maexchen.model.Diceroll;
+import at.rvs.maexchen.model.Notification;
 import at.rvs.maexchen.model.PlayerNotRespondingException;
 import at.rvs.maexchen.model.SeeOrRoll;
 import at.rvs.maexchen.model.Team;
@@ -21,9 +22,9 @@ public class PlayerClientService {
 	@Autowired
 	private transient Logger logger;
 
-	public void notifyAllPlayers(List<Team> teams, Diceroll playersDiceRoll) {
+	public void notifyAllPlayers(List<Team> teams, Notification notification) {
 		for (Team currentTeam : teams) {
-			notify(currentTeam, ServiceUrl.CURRENT_DICE_ROLL, playersDiceRoll.getDices());
+			notify(currentTeam, ServiceUrl.CURRENT_DICE_ROLL, notification);
 		}
 	}
 
@@ -67,6 +68,17 @@ public class PlayerClientService {
 			throw new PlayerNotRespondingException(currentPlayer);
 		}
 
+	}
+
+	private void notify(Team team, String url, Notification notification) {
+		RestTemplate restTemplate = new RestTemplate();
+
+		try {
+			logger.info("Notify Player:" + team.getName() + " " + notification.getDices());
+			restTemplate.postForLocation(team.getUrl() + url, notification);
+		} catch (Exception httpException) {
+			logger.warn("Unable to Notify Player!");
+		}
 	}
 
 	private void notify(Team team, String url, String message) {

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import at.rvs.maexchen.model.Diceroll;
+import at.rvs.maexchen.model.Notification;
 import at.rvs.maexchen.model.PlayerNotRespondingException;
 import at.rvs.maexchen.model.SeeOrRoll;
 import at.rvs.maexchen.model.Team;
@@ -90,7 +91,7 @@ public class MaexchenService {
 				shameOnPlayer(currentTeam);
 			} else {
 				if (previousTeamIsNotExtinguished()) {
-					shameOnPlayer(previousTeam);	
+					shameOnPlayer(previousTeam);
 				}
 			}
 			notifiyAllPlayersRoundEndedAndResetDices();
@@ -116,7 +117,7 @@ public class MaexchenService {
 		lastPlayerDiceRollTold = currentPlayerDicerolltold;
 		lastPlayerRealDiceRoll = currentPlayerDiceRoll;
 
-		playerClient.notifyAllPlayers(teams, lastPlayerDiceRollTold);
+		playerClient.notifyAllPlayers(teams, new Notification(currentTeam.getName(), lastPlayerDiceRollTold.getDices()));
 		setNextTeam();
 	}
 
@@ -165,7 +166,7 @@ public class MaexchenService {
 		previousTeam = currentTeam;
 		currentTeam = teams.get(index);
 	}
-	
+
 	private void determineNextTeam() {
 		index++;
 

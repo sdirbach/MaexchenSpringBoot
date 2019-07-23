@@ -3,6 +3,7 @@ package at.rvs.maexchen.rest;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -35,14 +36,26 @@ public class MaexchenServerRestService {
 		if (!gameRunning) {
 			logger.info("Team " + team.getName() + " joined game.");
 			team.setPoints(5);
-			if (playingTeams.stream().filter(p -> p.getName().equals(team.getName())).findAny().isPresent()) {
-				throw new IllegalArgumentException("already joined - don't cheat!");
-			}
+
+			teamIsNotAllowedToJoin(team);
 
 			playingTeams.add(team);
 			return team;
 		} else {
 			throw new IllegalArgumentException("to late to join");
+		}
+	}
+
+	private void teamIsNotAllowedToJoin(Team team) {
+		if (playingTeams.stream().filter(p -> p.getName().equals(team.getName())).findAny().isPresent()) {
+			throw new IllegalArgumentException("already joined - don't cheat!");
+		}
+		if (StringUtils.isEmpty(team.getName())) {
+			throw new IllegalArgumentException("No Teamname!!");
+		}
+
+		if (StringUtils.isEmpty(team.getUrl())) {
+			throw new IllegalArgumentException("No Service url");
 		}
 	}
 
