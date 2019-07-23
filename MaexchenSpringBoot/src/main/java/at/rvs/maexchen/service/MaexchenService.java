@@ -86,10 +86,10 @@ public class MaexchenService {
 		}
 
 		if (SeeOrRoll.SEE.equals(decision)) {
-			if (previousPlayerLied()) {
-				shameOnPlayer(previousTeam);
-			} else {
+			if (previousPlayerToldTruth()) {
 				shameOnPlayer(currentTeam);
+			} else {
+				shameOnPlayer(previousTeam);
 			}
 			notifiyAllPlayersRoundEndedAndResetDices();
 		}
@@ -138,6 +138,10 @@ public class MaexchenService {
 		return lastPlayerDiceRollTold.isHigherOrEqualThan(lastPlayerRealDiceRoll);
 	}
 
+	private boolean previousPlayerToldTruth() {
+		return lastPlayerRealDiceRoll.isHigherOrEqualThan(lastPlayerDiceRollTold);
+	}
+
 	private void notifiyAllPlayersRoundEndedAndResetDices() {
 		playerClient.notifyAllPlayerRoundEnded(teams);
 		previousTeam = null;
@@ -170,6 +174,10 @@ public class MaexchenService {
 
 	public List<Team> determineTeams() {
 		return teams;
+	}
+
+	public void setPlayingTeams(List<Team> playingTeams) {
+		this.teams = playingTeams;
 	}
 
 }

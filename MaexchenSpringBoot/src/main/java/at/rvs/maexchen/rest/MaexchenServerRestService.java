@@ -1,5 +1,6 @@
 package at.rvs.maexchen.rest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -20,6 +21,8 @@ public class MaexchenServerRestService {
 	@Autowired
 	private MaexchenService maexchenService;
 
+	private List<Team> playingTeams = new ArrayList<Team>();
+
 	@Autowired
 	private transient Logger logger;
 
@@ -32,7 +35,11 @@ public class MaexchenServerRestService {
 		if (!gameRunning) {
 			logger.info("Team " + team.getName() + " joined game.");
 			team.setPoints(5);
-			maexchenService.addTeamToGame(team);
+			if (playingTeams.stream().filter(p -> p.getName().equals(team.getName())).findAny().isPresent()) {
+				throw new IllegalArgumentException("already joined - don't cheat!");
+			}
+
+			playingTeams.add(team);
 			return team;
 		} else {
 			throw new IllegalArgumentException("to late to join");
@@ -42,8 +49,10 @@ public class MaexchenServerRestService {
 	@GetMapping("/startGame/{started}")
 	public Boolean startGame(@PathVariable boolean started) {
 		gameRunning = started;
+		maexchenService.setPlayingTeams(new ArrayList<Team>(playingTeams));
 		maexchenService.shuffleTeams();
-		maexchenService.determineTeams().stream().forEach(t -> logger.info(t.getName()));
+		maexchenService.determineTeams().forEach(team -> logger.info(team.getName()));
+		maexchenService.determineTeams().forEach(team -> team.setPoints(5));
 		return started;
 	}
 
