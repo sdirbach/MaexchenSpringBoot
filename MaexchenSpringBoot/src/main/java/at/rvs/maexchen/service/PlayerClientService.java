@@ -20,11 +20,10 @@ public class PlayerClientService {
 		try {
 			RestTemplate restTemplate = new RestTemplate();
 
-			System.out.println("notifyPlayer" + team.getUrl() + ServiceUrl.DICE_ROLL);
+			System.out.println("notifyPlayer: " + team.getName() + " url: " + team.getUrl() + ServiceUrl.DICE_ROLL + " there roll" + diceroll.getDices());
 
 			HttpEntity<String> request = new HttpEntity<String>(diceroll.getDices(), new HttpHeaders());
-			ResponseEntity<String> postForEntity = restTemplate.postForEntity(team.getUrl() + ServiceUrl.DICE_ROLL,
-					request, String.class);
+			ResponseEntity<String> postForEntity = restTemplate.postForEntity(team.getUrl() + ServiceUrl.DICE_ROLL, request, String.class);
 
 			String body = postForEntity.getBody();
 			return new Diceroll(body);
@@ -37,8 +36,7 @@ public class PlayerClientService {
 		RestTemplate restTemplate = new RestTemplate();
 
 		for (Team currentTeam : teams) {
-			restTemplate.postForLocation(currentTeam.getUrl() + ServiceUrl.CURRENT_DICE_ROLL,
-					playersDiceRoll.getDices());
+			restTemplate.postForLocation(currentTeam.getUrl() + ServiceUrl.CURRENT_DICE_ROLL, playersDiceRoll.getDices());
 		}
 	}
 
@@ -53,11 +51,15 @@ public class PlayerClientService {
 	public SeeOrRoll notifyPlayerSeeOrRoll(Team currentPlayer) {
 		RestTemplate restTemplate = new RestTemplate();
 
+		System.out.println("notifyPlayerSeeOrRoll: " + currentPlayer.getName() + " url: " + currentPlayer.getUrl() + ServiceUrl.SEE_OR_ROLL + " See or Roll?");
+
 		HttpEntity<String> request = new HttpEntity<String>("SEE OR ROLL", new HttpHeaders());
-		ResponseEntity<String> postForEntity = restTemplate
-				.postForEntity(currentPlayer.getUrl() + ServiceUrl.SEE_OR_ROLL, request, String.class);
+		ResponseEntity<String> postForEntity = restTemplate.postForEntity(currentPlayer.getUrl() + ServiceUrl.SEE_OR_ROLL, request, String.class);
 
 		String body = postForEntity.getBody();
+
+		System.out.println(currentPlayer.getName() + " wants to " + body);
+
 		return SeeOrRoll.getByName(body);
 	}
 

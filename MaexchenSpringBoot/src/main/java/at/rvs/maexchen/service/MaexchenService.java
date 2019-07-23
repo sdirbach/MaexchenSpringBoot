@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,9 @@ public class MaexchenService {
 	private int index = 0;
 
 	@Autowired
-	public PlayerClientService playerClient;
+	private PlayerClientService playerClient;
+	@Autowired
+	private transient Logger logger;
 
 	private Diceroll lastPlayerRealDiceRoll;
 	private Diceroll lastPlayerDiceRollTold;
@@ -38,16 +41,24 @@ public class MaexchenService {
 		currentTeam = teams.get(FIRST);
 	}
 
-	public void runGameRound() {
+	public boolean runGameRound() {
+		if (lastTeamStanding()) {
+			logger.info("We have a Winner" + teams.get(FIRST).getName());
+			return false;
+		}
+
 		if (lastPlayerRealDiceRoll != null && Diceroll.MAEXCHEN.equals(lastPlayerRealDiceRoll.getDices())) {
 			shameOnAllPlayersExcept(previousTeam);
 			notifiyAllPlayersRoundEnded();
 		}
+
 		if (!firstPlayer()) {
 			SeeOrRoll decision = playerClient.notifyPlayerSeeOrRoll(currentTeam);
+
 			if (SeeOrRoll.ROLL.equals(decision)) {
 				rollTheDicesTellEveryoneAndSetNextTeam();
 			}
+
 			if (SeeOrRoll.SEE.equals(decision)) {
 				if (previousPlayerLied()) {
 					shameOnPlayer(previousTeam);
@@ -57,20 +68,35 @@ public class MaexchenService {
 				notifiyAllPlayersRoundEnded();
 			}
 		}
+
 		if (firstPlayer()) {
 			rollTheDicesTellEveryoneAndSetNextTeam();
 		}
+
+		return true;
+	}
+
+	private boolean lastTeamStanding() {
+		return teams.size() == 1;
 	}
 
 	private void rollTheDicesTellEveryoneAndSetNextTeam() {
-		lastPlayerRealDiceRoll = new Diceroll();
-		Diceroll currentDicerolltold = playerClient.notifyPlayer(currentTeam, lastPlayerRealDiceRoll);
-		if (lastPlayerDiceRollTold != null && lastPlayerDiceRollTold.isHigherOrEqualThan(currentDicerolltold)) {
+		Diceroll currentPlayerDiceRoll = new Diceroll();
+		Diceroll currentPlayerDicerolltold = playerClient.notifyPlayer(currentTeam, currentPlayerDiceRoll);
+
+		if (lastPlayerDiceRollTold != null && lastPlayerDiceRollTold.isHigherOrEqualThan(currentPlayerDicerolltold)) {
+			logger.info("Last Player Roll was " + lastPlayerDiceRollTold + " was highter than" + currentPlayerDicerolltold);
+
 			shameOnPlayer(currentTeam);
 			notifiyAllPlayersRoundEnded();
+			lastPlayerDiceRollTold = null;
+			lastPlayerRealDiceRoll = null;
 			return;
 		}
-		lastPlayerDiceRollTold = currentDicerolltold;
+
+		lastPlayerDiceRollTold = currentPlayerDicerolltold;
+		lastPlayerRealDiceRoll = currentPlayerDiceRoll;
+
 		playerClient.notifyAllPlayers(teams, lastPlayerDiceRollTold);
 		setNextTeam();
 	}
@@ -86,9 +112,9 @@ public class MaexchenService {
 	private void shameOnPlayer(Team player) {
 		if (player.decreaseAndGetPoints() <= 0) {
 			teams.remove(player);
-			System.out.println("Removed player " + player.getName());
+			logger.info("Removed player " + player.getName());
 		} else {
-			System.out.println(player.getName() + " decreased by 1 to " + player.getPoints());
+			logger.info(player.getName() + " decreased by 1 to " + player.getPoints());
 		}
 
 	}
@@ -100,7 +126,7 @@ public class MaexchenService {
 	private void notifiyAllPlayersRoundEnded() {
 		playerClient.notifyAllPlayerRoundEnded(teams);
 		previousTeam = null;
-		System.out.println("Round Ended!");
+		logger.info("Round Ended!");
 	}
 
 	private boolean firstPlayer() {
@@ -110,7 +136,7 @@ public class MaexchenService {
 	private void setNextTeam() {
 		index++;
 
-		if (index >= teams.size() - 1) {
+		if (index > teams.size() - 1) {
 			index = 0;
 		}
 		previousTeam = currentTeam;

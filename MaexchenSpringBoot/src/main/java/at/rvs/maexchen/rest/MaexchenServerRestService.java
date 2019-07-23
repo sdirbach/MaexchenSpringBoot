@@ -2,6 +2,7 @@ package at.rvs.maexchen.rest;
 
 import java.util.List;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,13 +20,17 @@ public class MaexchenServerRestService {
 	@Autowired
 	private MaexchenService maexchenService;
 
-	private boolean gameStarted;
+	@Autowired
+	private transient Logger logger;
+
+	private boolean gameRunning;
 
 	private long round = 0;
 
 	@PostMapping("/join")
 	public Team joinGame(@RequestBody Team team) {
-		if (!gameStarted) {
+		if (!gameRunning) {
+			System.out.println("Team " + team.getName() + " joined game.");
 			team.setPoints(5);
 			maexchenService.addTeamToGame(team);
 			return team;
@@ -36,7 +41,7 @@ public class MaexchenServerRestService {
 
 	@GetMapping("/startGame/{started}")
 	public Boolean startGame(@PathVariable boolean started) {
-		gameStarted = started;
+		gameRunning = started;
 		maexchenService.shuffleTeams();
 		return started;
 	}
@@ -48,10 +53,9 @@ public class MaexchenServerRestService {
 
 	@Scheduled(fixedDelay = 1000)
 	public void runGameRound() {
-		System.out.println("skedulte round");
-		if (gameStarted) {
-			System.out.println("Round" + round++);
-			maexchenService.runGameRound();
+		if (gameRunning) {
+			logger.info("Round" + round++);
+			gameRunning = maexchenService.runGameRound();
 		}
 
 	}

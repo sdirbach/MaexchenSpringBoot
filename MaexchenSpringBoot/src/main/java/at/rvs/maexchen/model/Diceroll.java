@@ -54,8 +54,8 @@ public class Diceroll {
 	}
 
 	public boolean isHigherOrEqualThan(Diceroll dices) {
-		System.out.println("index this: " + diceValueTable.indexOf(this.dices));
-		System.out.println("index para: " + diceValueTable.indexOf(dices.getDices()));
+//		System.out.println("index this: " + diceValueTable.indexOf(this.dices));
+//		System.out.println("index para: " + diceValueTable.indexOf(dices.getDices()));
 		return diceValueTable.indexOf(this.dices) >= diceValueTable.indexOf(dices.getDices());
 	}
 
