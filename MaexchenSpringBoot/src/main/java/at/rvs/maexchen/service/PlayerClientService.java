@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import at.rvs.maexchen.model.Diceroll;
 import at.rvs.maexchen.model.Notification;
 import at.rvs.maexchen.model.PlayerNotRespondingException;
+import at.rvs.maexchen.model.PlayerToldShitException;
 import at.rvs.maexchen.model.SeeOrRoll;
 import at.rvs.maexchen.model.Team;
 
@@ -64,6 +65,10 @@ public class PlayerClientService {
 
 			logger.info(currentPlayer.getName() + " wants to " + body);
 			return SeeOrRoll.getByName(body);
+
+		} catch (IllegalArgumentException ex) {
+			throw new PlayerToldShitException(currentPlayer);
+
 		} catch (Exception httpException) {
 			throw new PlayerNotRespondingException(currentPlayer);
 		}

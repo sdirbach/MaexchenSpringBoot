@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import at.rvs.maexchen.model.Diceroll;
 import at.rvs.maexchen.model.Notification;
 import at.rvs.maexchen.model.PlayerNotRespondingException;
+import at.rvs.maexchen.model.PlayerToldShitException;
 import at.rvs.maexchen.model.SeeOrRoll;
 import at.rvs.maexchen.model.Team;
 
@@ -68,8 +69,8 @@ public class MaexchenService {
 				rollTheDicesTellEveryoneAndSetNextTeam();
 			}
 			return true;
-		} catch (PlayerNotRespondingException exception) {
-			logger.warn("Player " + exception.getTeam().getName() + " did not respond!");
+		} catch (PlayerToldShitException | PlayerNotRespondingException exception) {
+			logger.warn("Player " + exception.getTeam().getName() + " " + exception.getClass().getName());
 			shameOnPlayer(exception.getTeam());
 			notifiyAllPlayersRoundEndedAndResetDices();
 			if (exception.getTeam().getPoints() <= 0) {
@@ -117,7 +118,7 @@ public class MaexchenService {
 		lastPlayerDiceRollTold = currentPlayerDicerolltold;
 		lastPlayerRealDiceRoll = currentPlayerDiceRoll;
 
-		playerClient.notifyAllPlayers(teams, new Notification(currentTeam.getName(), lastPlayerDiceRollTold.getDices()));
+		playerClient.notifyAllPlayers(teams, new Notification(lastPlayerDiceRollTold.getDices(), currentTeam.getName()));
 		setNextTeam();
 	}
 

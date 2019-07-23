@@ -1,6 +1,6 @@
 package at.rvs.maexchen.model;
 
-public class PlayerNotRespondingException extends IllegalArgumentException {
+public class PlayerNotRespondingException extends IllegalArgumentException implements FatalPlayerException {
 
 	private final Team team;
 

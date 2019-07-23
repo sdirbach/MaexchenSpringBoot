@@ -19,15 +19,15 @@ public class MaexchenSpielerRestService {
 	@PostMapping(ServiceUrl.DICE_ROLL)
 	public String diceRoll(@RequestBody String dice) {
 		logger.info("DICE_ROLL:" + dice);
-		
-		if(dice.contains("3")) {
+
+		if (dice.contains("3")) {
 			return "21";
 		}
-		
-		if(dice.contains("4")) {
+
+		if (dice.contains("4")) {
 			return "66";
 		}
-		
+
 		return dice;
 	}
 
@@ -49,6 +49,10 @@ public class MaexchenSpielerRestService {
 		logger.info(seeOrRoll);
 
 		if (lastDice != null && lastDice.contains("21")) {
+			return "I Mag nimma";
+		}
+
+		if (lastDice != null && lastDice.contains("66")) {
 			return "SEE";
 		}
 
