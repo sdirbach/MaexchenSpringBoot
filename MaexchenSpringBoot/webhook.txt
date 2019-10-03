@@ -1,0 +1,65 @@
+URL: https://master.ocp.lab.cloudwerkstatt.com:8443/apis/build.openshift.io/v1/namespaces/sdirbach-cicd/buildconfigs/maexchenspringboot/webhooks/c2VjcmV0dmFsdWUx/github
+Content-Type: application/json
+
+Anleitung: https://docs.openshift.com/container-platform/3.11/dev_guide/builds/triggering_builds.html#github-webhooks
+
+---
+apiVersion: v1
+kind: List
+items:
+- kind: Secret
+  apiVersion: v1
+  metadata:
+    name: mysecret
+    creationTimestamp:
+  data:
+    WebHookSecretKey: c2VjcmV0dmFsdWUx
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      build: "example-local-pipeline-strategy"
+    name: "example-local-pipeline-strategy"
+  spec: {}
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      build: "jenkins-pipeline"
+    name: "jenkins-pipeline"
+  spec:
+    output:
+      to:
+        kind: "ImageStreamTag"
+        name: "example-local-pipeline-strategy:latest"
+    resources: {}
+    triggers:
+    - type: "GitHub"
+      github:
+        secretReference:
+          name: "mysecret"
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfile: |-
+          node('master') {
+            stage('build') {
+              echo 'Building...'
+              openshiftBuild(buildConfig: 'maexchenspringboot', showBuildLogs: 'true')
+            }
+            stage('test-preparation') {
+              echo 'Prepare Test'
+              openshiftScale(deploymentConfig: 'maexchenspringboot-test', replicaCount: 1)
+            }
+            stage('test') {
+              echo 'Testing'
+              sh "curl http://maexchenspringboot-test.sdirbach-cicd.svc.cluster.local:8080/swagger-ui.html"
+            }
+            stage('test-teardown') {
+              echo 'Test Teardown'
+              openshiftScale(deploymentConfig: 'maexchenspringboot-test', replicaCount: 0)
+            }
+            stage('deploy') {
+               echo 'Deploying'
+              openshiftTag(sourceStream: 'maexchenspringboot', sourceTag: 'latest', destinationStream: 'maexchenspringboot', destinationTag: 'release')
+            }
+          }
