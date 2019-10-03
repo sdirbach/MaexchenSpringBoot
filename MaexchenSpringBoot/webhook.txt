@@ -1,4 +1,4 @@
-URL: https://master.ocp.lab.cloudwerkstatt.com:8443/apis/build.openshift.io/v1/namespaces/sdirbach-cicd/buildconfigs/maexchenspringboot/webhooks/c2VjcmV0dmFsdWUx/github
+URL: https://master.ocp.lab.cloudwerkstatt.com:8443/apis/build.openshift.io/v1/namespaces/sdirbach-cicd/buildconfigs/jenkins-pipeline/webhooks/secretvalue1/github
 Content-Type: application/json
 
 Anleitung: https://docs.openshift.com/container-platform/3.11/dev_guide/builds/triggering_builds.html#github-webhooks
